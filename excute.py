@@ -46,16 +46,22 @@ model = Conv_AE().double().to(device)
 optimizer = torch.optim.Adam(model.parameters(),lr = lr)
 loss_f = torch.nn.MSELoss()
 
-best_score = 1000000000000000
+best_MSE_score = 1000000000000000
+bast_MAE_score = 1000000000000000
 best_model_path = None
 for epoch in range(epochs):
     train(model,tr_dataloader,optimizer,loss_f,epoch,device,norm_name)
     total_dict,point_dict = test(model, vd_dataloader, device,norm_name)
     print(point_dict)
-    if epoch>50 and point_dict['RMSE']<best_score:
+    if epoch>50 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< bast_MAE_score):
         good_model_path = "{}\\({})_{:.2f}_{:.2f}_{:.2f}.pt".format(save_path,epoch,point_dict['RMSE'],point_dict['MAE'],point_dict['MRE'])
         torch.save(model.state_dict(),good_model_path)
-        best_score = point_dict['RMSE']
+
+        if point_dict['RMSE']<best_MSE_score:
+            best_MSE_score = point_dict['RMSE']
+        else:
+            best_MAE_score = point_dict['MAE']
+
         best_model_path=good_model_path
 
 
