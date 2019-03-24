@@ -1,0 +1,110 @@
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+
+def zero_norm_recover(data, mean_var):
+    mean = mean_var[:, 0].view(-1, 1)
+    std = torch.sqrt(mean_var[:, 1].view(-1, 1))
+
+
+    recover = (data * std) + mean
+    return recover
+
+
+def min_max_recover(data, min_max):
+    min = min_max[:, 0].view(-1, 1)
+    max = min_max[:, 1].view(-1, 1)
+
+    recover = data * (max - min) - min
+    return recover
+
+def RMSE_F(raw,corr,recover):
+    mse_total = np.sqrt(np.square(raw - recover).mean())
+    mse_point = np.sqrt(np.square(raw[corr==-1]-recover[corr==-1]).mean())
+    return mse_total,mse_point
+
+def MRE_F(raw,corr,recover):
+
+    mre_total = (np.abs(raw - recover)/(raw+0.00000000000000000001)).mean()
+    mre_point = (np.abs(raw[corr == -1] - recover[corr == -1])/(raw[corr==-1]+0.00000000000000000001)).mean()
+
+    return mre_total,mre_point
+
+def MAE_F(raw,corr,recover):
+    mae_total = np.abs(raw - recover).mean()
+    mae_point = np.abs(raw[corr == -1] - recover[corr == -1]).mean()
+    return mae_total,mae_point
+
+def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
+    model.train()
+    recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
+    mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
+    loss_list=[]
+
+    for i, (corr,raw,mask,norm,stat_dict,demo_dict) in enumerate(dataloader):
+        corr,raw,mask,norm = corr.to(device),raw.to(device),mask.to(device),norm.to(device)
+
+        if norm_name is not None:
+            norm_corr = norm.clone()
+            norm_corr[corr==-1]=0
+            encode = model.encoder(norm_corr)
+            decode = model.decoder(encode)
+            # decode = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
+
+
+        else :
+            encode = model.encoder(corr)
+            decode = model.decoder(encode)
+
+        origin = norm if norm_name is not None else raw
+
+        # 어떤 모델을 사용하느냐에 따라 모델의 로스 구성을 다르게 진행하여야 함
+        optim.zero_grad()
+        loss = loss_f(decode, origin)
+        loss.backward()
+        optim.step()
+        loss_list.append(loss.cpu().item())
+
+    print('{} epoch loss : {}'.format(epoch,np.array(loss_list).mean()))
+
+
+
+
+
+
+def test (model,dataloader,device,norm_name=None):
+    model.eval()
+    recon_dict ={'minmax':min_max_recover,'zero':zero_norm_recover,'total_zero':zero_norm_recover}
+    mapping = {'minmax':'min_max','zero':'mean_var','total_zero':'total_mean_var'}
+
+    raw_list = []
+    corr_list = []
+    output_list = []
+
+    for i, (corr, raw, mask, norm, stat_dict, demo_dict) in enumerate(dataloader):
+        corr, raw, mask, norm = corr.to(device), raw.to(device), mask.to(device), norm.to(device)
+
+
+        if norm_name is not None:
+            norm_corr = norm.clone()
+            norm_corr[corr == -1] = 0
+            output = model(norm_corr)
+            output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
+        else :
+            output = model(corr)
+
+        raw_list.extend(raw.cpu().detach().numpy())
+        corr_list.extend(corr.cpu().detach().numpy())
+        output_list.extend(output.cpu().detach().numpy())
+
+    raw_list,corr_list,output_list = np.array(raw_list),np.array(corr_list),np.array(output_list)
+    RMSE_total,RMSE_point = RMSE_F(raw_list,corr_list,output_list)
+    MRE_total,MRE_point = MRE_F(raw_list,corr_list,output_list)
+    MAE_total,MAE_point = MAE_F(raw_list,corr_list,output_list)
+
+    return {'RMSE':RMSE_total,'MRE':MRE_total,'MAE':MAE_total},{'RMSE':RMSE_point,'MRE':MRE_point,'MAE':MAE_point}
+
+
+
+
+
