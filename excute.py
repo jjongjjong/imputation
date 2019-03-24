@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from AE import AutoEncoder
 from Conv_AE import Conv_AE
-from Utility import train,test
+from Utility import train,test,visualizing
 import datetime
 import pathlib
 
@@ -67,6 +67,9 @@ for epoch in range(epochs):
 
 
 model.load_state_dict(torch.load(best_model_path))
+visualizing(vd_dataloader,model,device,norm_name,batch_size,save_path)
+
 test_total,test_point = test(model,te_dataloader,device,norm_name)
-
-
+visualizing(te_dataloader,model,device,norm_name,batch_size,save_path)
+print(test_point)
+print('DONE!')
