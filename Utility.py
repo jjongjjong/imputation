@@ -15,7 +15,7 @@ def min_max_recover(data, min_max):
     min = min_max[:, 0].view(-1, 1)
     max = min_max[:, 1].view(-1, 1)
 
-    recover = data * (max - min) - min
+    recover = data * (max - min) + min
     return recover
 
 def RMSE_F(raw,corr,recover):

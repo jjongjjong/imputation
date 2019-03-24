@@ -47,7 +47,7 @@ class activityDataset(Dataset):
     def min_max_normalize(self):
         min = self.min_max[:, 0].view(-1, 1)
         max = self.min_max[:, 1].view(-1, 1)
-        norm = (self.raw_data + min) / (max - min)
+        norm = (self.raw_data - min) / (max - min)
         #norm[self.corr_data == -1] = 0
         return norm
 
