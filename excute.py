@@ -14,7 +14,7 @@ input_size = 720
 output_size = 80
 batch_size = 256
 lr = 0.0001
-epochs = 5000
+epochs = 500
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
 
