@@ -15,7 +15,7 @@ output_size = 80
 batch_size = 256
 lr = 0.0001
 epochs = 5000
-norm_name = 'total_zero' #minmax/zero/total_zero/None
+norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
 
 info = 'model_{} hidden_{} norm_{}'.format('Conv_AE',output_size,norm_name)
