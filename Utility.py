@@ -105,6 +105,43 @@ def test (model,dataloader,device,norm_name=None):
     return {'RMSE':RMSE_total,'MRE':MRE_total,'MAE':MAE_total},{'RMSE':RMSE_point,'MRE':MRE_point,'MAE':MAE_point}
 
 
+def visualizing(dataloader,model,device,norm_name,batch_size,save_path):
+    recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
+    mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
+
+    for i, (corr, raw, mask, norm, stat_dict, demo_dict) in enumerate(dataloader):
+        corr, raw, mask, norm = corr.to(device), raw.to(device), mask.to(device), norm.to(device)
+
+        if norm_name is not None:
+            norm_corr = norm.clone()
+            norm_corr[corr == -1] = 0
+            output = model(norm_corr)
+            output = recon_dict[norm_name](output, stat_dict[mapping[norm_name]].to(device))
+        else:
+            output = model(corr)
+
+        break
+
+    save_path = save_path+'\\figure\\'
+    pathlib.Path(save_path).mkdir(exist_ok=True)
+
+    output_np = output.cpu().detach().numpy()
+    corr_np = corr.cpu().detach().numpy()
+    raw_np = raw.cpu().detach().numpy()
+
+    output_np[corr_np != -1] = 0
+    raw_np[corr_np != -1] = 0
+
+    for i in range(batch_size):
+        plt.figure(figsize=(12, 6))
+        plt.plot(output_np[i], 'r:')
+        plt.plot(corr_np[i])
+        plt.plot(raw_np[i], 'g')
+        plt.savefig(save_path+str(i))
+        plt.close()
+
+        if i>30:
+            break
 
 
 
