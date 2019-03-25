@@ -51,19 +51,19 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
             encode = model.encoder(norm_corr)
             decode = model.decoder(encode)
             # decode = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
-            input_var = norm_corr.var(dim=1)
+            #input_var = norm_corr.var(dim=1)
 
         else :
             encode = model.encoder(corr)
             decode = model.decoder(encode)
-            input_var = corr.var(dim=1)
+            #input_var = corr.var(dim=1)
 
         origin = norm if norm_name is not None else raw
         output_var = decode.var(dim=1)
-        loss_var = torch.sqrt(torch.mean((output_var-input_var)**2))
+        #loss_var = torch.sqrt(torch.mean((output_var-input_var)**2))
         # 어떤 모델을 사용하느냐에 따라 모델의 로스 구성을 다르게 진행하여야 함
         optim.zero_grad()
-        loss = loss_f(decode, origin)+loss_var
+        loss = loss_f(decode, origin)#+loss_var
         loss.backward()
         optim.step()
         loss_list.append(loss.cpu().item())

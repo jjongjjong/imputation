@@ -47,7 +47,7 @@ optimizer = torch.optim.Adam(model.parameters(),lr = lr)
 loss_f = torch.nn.MSELoss()
 
 best_MSE_score = 1000000000000000
-bast_MAE_score = 1000000000000000
+best_MAE_score = 1000000000000000
 best_model_path = None
 for epoch in range(epochs):
     train(model,tr_dataloader,optimizer,loss_f,epoch,device,norm_name)
@@ -59,7 +59,7 @@ for epoch in range(epochs):
 
         if point_dict['RMSE']<best_MSE_score:
             best_MSE_score = point_dict['RMSE']
-        else:
+        elif point_dict['MAE'] < best_MAE_score:
             best_MAE_score = point_dict['MAE']
 
         best_model_path=good_model_path

@@ -36,7 +36,7 @@ class Conv_AE(nn.Module):
             nn.BatchNorm1d(16),
             nn.Tanh(),
             nn.ConvTranspose1d(16 ,1 ,10 ,5),
-            nn.Sigmoid()
+            nn.ReLU()
         )
 
     def encoder(self,x):
