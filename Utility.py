@@ -44,17 +44,17 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
 
     for i, (corr,raw,mask,norm,stat_dict,demo_dict) in enumerate(dataloader):
         corr,raw,mask,norm = corr.to(device),raw.to(device),mask.to(device),norm.to(device)
-
+        print(norm_name)
         if norm_name is not None:
             norm_corr = norm.clone()
             norm_corr[corr==-1]=0
-            encode = model.encoder(norm_corr,mask)
+            encode = model.encoder(norm_corr)
             decode = model.decoder(encode)
-            # decode = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
+            output_recon = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
             #input_var = norm_corr.var(dim=1)
 
         else :
-            encode = model.encoder(corr,mask)
+            encode = model.encoder(corr)
             decode = model.decoder(encode)
             #input_var = corr.var(dim=1)
 
@@ -92,12 +92,12 @@ def test (model,dataloader,device,norm_name=None):
 
             norm_corr = norm.clone()
             norm_corr[corr==-1]=0
-            encode = model.encoder(norm_corr,mask)
+            encode = model.encoder(norm_corr)
             output = model.decoder(encode)
             output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
             #input_var = norm_corr.var(dim=1)
         else :
-            encode = model.encoder(corr,mask)
+            encode = model.encoder(corr)
             output = model.decoder(encode)
             #input_var = corr.var(dim=1)
 

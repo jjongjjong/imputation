@@ -41,9 +41,9 @@ class Conv_AE(nn.Module):
 
         self.linear1 = nn.Linear(720*2,720)
 
-    def encoder(self,x,mask):
-        x = torch.cat([x, mask], dim=1)
-        x = self.linear1(x).view(-1, 1, 720)
+    def encoder(self,x):
+        # x = torch.cat([x, mask], dim=1)
+        # x = self.linear1(x).view(-1, 1, 720)
         x = x.view(-1,1,720)
         return self.Encoder(x)
 
