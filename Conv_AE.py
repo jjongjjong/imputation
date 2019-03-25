@@ -39,12 +39,19 @@ class Conv_AE(nn.Module):
             nn.ReLU()
         )
 
+        self.linear1 = nn.Linear(720*2,720)
+
     def encoder(self,x):
+        # x = torch.cat([x, mask], dim=1)
+        # x = self.linear1(x).view(-1, 1, 720)
         x = x.view(-1,1,720)
         return self.Encoder(x)
 
-    def decoder(self,x):
-        return  self.Decoder(x).view(-1,720)
+    def decoder(self,x,mask):
+        x=self.Decoder(x).view(-1, 720)
+        x = torch.cat([x,mask],dim=1)
+        x = self.linear1(x)
+        return x
 
     def forward(self ,x):
         x = x.view(-1,1,720)

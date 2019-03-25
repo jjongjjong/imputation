@@ -7,6 +7,7 @@ class AutoEncoder(torch.nn.Module):
         self.input_size= input_size
         self.output_size = output_size
 
+        self.linear1 = nn.Linear(720*2,270)
 
         self.Encoder = nn.Sequential(
             nn.Linear(input_size,int(input_size/2)),
@@ -26,7 +27,9 @@ class AutoEncoder(torch.nn.Module):
 
 
     def encoder(self,x):
-        return self.Encoder(x)
+
+        x = self.Encoder(x)
+        return x
 
     def decoder(self,x):
         return  self.Decoder(x)
