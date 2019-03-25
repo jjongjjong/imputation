@@ -48,14 +48,14 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         if norm_name is not None:
             norm_corr = norm.clone()
             norm_corr[corr==-1]=0
-            encode = model.encoder(norm_corr)
-            decode = model.decoder(encode,mask)
+            encode = model.encoder(norm_corr,mask)
+            decode = model.decoder(encode)
             # decode = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
             #input_var = norm_corr.var(dim=1)
 
         else :
-            encode = model.encoder(corr)
-            decode = model.decoder(encode,mask)
+            encode = model.encoder(corr,mask)
+            decode = model.decoder(encode)
             #input_var = corr.var(dim=1)
 
         origin = norm if norm_name is not None else raw
@@ -92,13 +92,13 @@ def test (model,dataloader,device,norm_name=None):
 
             norm_corr = norm.clone()
             norm_corr[corr==-1]=0
-            encode = model.encoder(norm_corr)
-            output = model.decoder(encode,mask)
-            # decode = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
+            encode = model.encoder(norm_corr,mask)
+            output = model.decoder(encode)
+            output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
             #input_var = norm_corr.var(dim=1)
         else :
-            encode = model.encoder(corr)
-            output = model.decoder(encode,mask)
+            encode = model.encoder(corr,mask)
+            output = model.decoder(encode)
             #input_var = corr.var(dim=1)
 
         raw_list.extend(raw.cpu().detach().numpy())
