@@ -41,6 +41,9 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
     recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
     mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
     loss_list=[]
+    raw_list=[]
+    corr_list=[]
+    output_list=[]
 
     for i, (corr,raw,mask,norm,stat_dict,demo_dict) in enumerate(dataloader):
         corr,raw,mask,norm = corr.to(device),raw.to(device),mask.to(device),norm.to(device)
@@ -56,6 +59,7 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         else :
             encode = model.encoder(corr)
             decode = model.decoder(encode)
+            output_recon = decode.copy()
             #input_var = corr.var(dim=1)
 
         origin = norm if norm_name is not None else raw
@@ -68,8 +72,15 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         optim.step()
         loss_list.append(loss.cpu().item())
 
+        raw_list.extend(raw.cpu().detach().numpy())
+        corr_list.extend(corr.cpu().detach().numpy())
+        output_list.extend(output_recon.cpu().detach().numpy())
     print('{} epoch loss : {}'.format(epoch,np.array(loss_list).mean()))
 
+    raw_list,corr_list,output_list = np.array(raw_list),np.array(corr_list),np.array(output_list)
+    RMSE_total,RMSE_point = RMSE_F(raw_list,corr_list,output_list)
+    MRE_total,MRE_point = MRE_F(raw_list,corr_list,output_list)
+    MAE_total,MAE_point = MAE_F(raw_list,corr_list,output_list)
 
 
 
