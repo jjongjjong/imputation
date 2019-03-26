@@ -13,11 +13,11 @@ import pathlib
 input_size = 720
 output_size = 80
 batch_size = 512
-lr = 0.0001
+lr = 0.0005
 epochs = 500
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
-corr_value=-1
+corr_value=0.5
 
 info = 'model_{} hidden_{} norm_{} corr_{}'.format('Conv_AE',output_size,norm_name,corr_value)
 time = datetime.datetime.now().strftime('%Y%m%d-%H%M-%S')

@@ -8,32 +8,32 @@ class Conv_AE(nn.Module):
 
         self.Encoder = nn.Sequential(
             nn.Conv1d(1 ,8 ,10 ,3),
-            nn.BatchNorm1d(16),
+            nn.BatchNorm1d(8),
             nn.Tanh(),
             nn.Conv1d(8 ,16 ,10 ,2),
-            nn.BatchNorm1d(32),
+            nn.BatchNorm1d(16),
             nn.Tanh(),
             nn.Conv1d(16 ,32 ,10 ,2),
-            nn.BatchNorm1d(64),
+            nn.BatchNorm1d(32),
             nn.Tanh(),
             nn.Conv1d(32 ,64 ,10 ,2),
-            nn.BatchNorm1d(128),
+            nn.BatchNorm1d(64),
             nn.Tanh(),
             nn.Conv1d(64 ,128 ,10 ,2)
         )
 
         self.Decoder = nn.Sequential(
             nn.ConvTranspose1d(128 ,64 ,10 ,1),
-            nn.BatchNorm1d(128),
-            nn.Tanh(),
-            nn.ConvTranspose1d(64 ,32 ,10 ,1),
             nn.BatchNorm1d(64),
             nn.Tanh(),
-            nn.ConvTranspose1d(32 ,16 ,10 ,1),
+            nn.ConvTranspose1d(64 ,32 ,10 ,1),
             nn.BatchNorm1d(32),
             nn.Tanh(),
-            nn.ConvTranspose1d(16 ,8 ,10 ,4 ,output_padding=1),
+            nn.ConvTranspose1d(32 ,16 ,10 ,1),
             nn.BatchNorm1d(16),
+            nn.Tanh(),
+            nn.ConvTranspose1d(16 ,8 ,10 ,4 ,output_padding=1),
+            nn.BatchNorm1d(8),
             nn.Tanh(),
             nn.ConvTranspose1d(8 ,1 ,10 ,5),
             nn.Tanh()
