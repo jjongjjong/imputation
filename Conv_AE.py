@@ -19,13 +19,13 @@ class Conv_AE(nn.Module):
             nn.Conv1d(64 ,128 ,10 ,2),
             nn.BatchNorm1d(128),
             nn.Tanh(),
-            nn.Conv1d(128 ,256 ,10 ,2)
+            #nn.Conv1d(128 ,256 ,10 ,2)
         )
 
         self.Decoder = nn.Sequential(
-            nn.ConvTranspose1d(256 ,128 ,10 ,1),
-            nn.BatchNorm1d(128),
-            nn.Tanh(),
+            # nn.ConvTranspose1d(256 ,128 ,10 ,1),
+            # nn.BatchNorm1d(128),
+            # nn.Tanh(),
             nn.ConvTranspose1d(128 ,64 ,10 ,1),
             nn.BatchNorm1d(64),
             nn.Tanh(),
