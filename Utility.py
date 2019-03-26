@@ -50,7 +50,7 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         corr,raw,mask,norm = corr.to(device),raw.to(device),mask.to(device),norm.to(device)
         if norm_name is not None:
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=-1
+            norm_corr[corr==-1]=0.5
             encode = model.encoder(norm_corr)
             decode = model.decoder(encode)
             output_recon = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
@@ -108,7 +108,7 @@ def test (model,dataloader,device,norm_name=None):
         if norm_name is not None:
 
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=-1
+            norm_corr[corr==-1]=0.5
             encode = model.encoder(norm_corr)
             output = model.decoder(encode)
             output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
@@ -140,7 +140,7 @@ def visualizing(dataloader,model,device,norm_name,batch_size,save_path):
         if norm_name is not None:
 
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=-1
+            norm_corr[corr==-1]=0.5
             encode = model.encoder(norm_corr)
             output = model.decoder(encode)
             output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
