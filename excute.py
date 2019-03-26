@@ -17,7 +17,7 @@ lr = 0.0001
 epochs = 500
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
-corr_value=0.5
+corr_value=-1
 
 info = 'model_{} hidden_{} norm_{} corr_{}'.format('Conv_AE',output_size,norm_name,corr_value)
 time = datetime.datetime.now().strftime('%Y%m%d-%H%M-%S')

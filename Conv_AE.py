@@ -36,7 +36,7 @@ class Conv_AE(nn.Module):
             nn.BatchNorm1d(16),
             nn.Tanh(),
             nn.ConvTranspose1d(16 ,1 ,10 ,5),
-            nn.ReLU()
+            nn.Tanh()
         )
 
         self.linear1 = nn.Linear(720,720)
