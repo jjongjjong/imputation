@@ -73,8 +73,8 @@ def train (model,dataloader,optim,loss_f,epoch,device,corr_value,norm_name=None)
         #loss_var = torch.sqrt(torch.mean((output_var-input_var)**2))
         # 어떤 모델을 사용하느냐에 따라 모델의 로스 구성을 다르게 진행하여야 함
 
-        origin[corr!=-1]=0
-        decode[corr!=-1]=0
+        # origin[corr!=-1]=0
+        # decode[corr!=-1]=0
 
         optim.zero_grad()
         loss = loss_f(decode, origin)#+loss_var
