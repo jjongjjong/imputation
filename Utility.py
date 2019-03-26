@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 import pathlib
 import torch.nn as nn
 
+def info_writer(info,savepath):
+    print(info)
+    file = open('{}//{}'.format(savepath,'info.txt'),'w')
+    file.write(info)
+    file.close()
+
 def zero_norm_recover(data, mean_var):
     mean = mean_var[:, 0].view(-1, 1)
     std = torch.sqrt(mean_var[:, 1].view(-1, 1))
@@ -37,7 +43,7 @@ def MAE_F(raw,corr,recover):
     mae_point = np.abs(raw[corr == -1] - recover[corr == -1]).mean()
     return mae_total,mae_point
 
-def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
+def train (model,dataloader,optim,loss_f,epoch,device,corr_value,norm_name=None):
     model.train()
     recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
     mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
@@ -50,7 +56,7 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         corr,raw,mask,norm = corr.to(device),raw.to(device),mask.to(device),norm.to(device)
         if norm_name is not None:
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=0.5
+            norm_corr[corr==-1]=corr_value
             encode = model.encoder(norm_corr)
             decode = model.decoder(encode)
             output_recon = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
@@ -67,8 +73,8 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         #loss_var = torch.sqrt(torch.mean((output_var-input_var)**2))
         # 어떤 모델을 사용하느냐에 따라 모델의 로스 구성을 다르게 진행하여야 함
 
-        origin[corr==-1]=0
-        decode[corr==-1]=0
+        origin[corr!=-1]=0
+        decode[corr!=-1]=0
 
         optim.zero_grad()
         loss = loss_f(decode, origin)#+loss_var
@@ -92,7 +98,7 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
 
 
 
-def test (model,dataloader,device,norm_name=None):
+def test (model,dataloader,device,corr_value,norm_name=None):
     model.eval()
     recon_dict ={'minmax':min_max_recover,'zero':zero_norm_recover,'total_zero':zero_norm_recover}
     mapping = {'minmax':'min_max','zero':'mean_var','total_zero':'total_mean_var'}
@@ -108,7 +114,7 @@ def test (model,dataloader,device,norm_name=None):
         if norm_name is not None:
 
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=0.5
+            norm_corr[corr==-1]=corr_value
             encode = model.encoder(norm_corr)
             output = model.decoder(encode)
             output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
@@ -130,7 +136,7 @@ def test (model,dataloader,device,norm_name=None):
     return {'RMSE':RMSE_total,'MRE':MRE_total,'MAE':MAE_total},{'RMSE':RMSE_point,'MRE':MRE_point,'MAE':MAE_point}
 
 
-def visualizing(dataloader,model,device,norm_name,batch_size,save_path):
+def visualizing(dataloader,model,device,norm_name,batch_size,save_path,corr_value):
     recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
     mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
 
@@ -140,7 +146,7 @@ def visualizing(dataloader,model,device,norm_name,batch_size,save_path):
         if norm_name is not None:
 
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=0.5
+            norm_corr[corr==-1]=corr_value
             encode = model.encoder(norm_corr)
             output = model.decoder(encode)
             output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
