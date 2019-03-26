@@ -5,15 +5,15 @@ import pandas as pd
 import numpy as np
 from AE import AutoEncoder
 from Conv_AE import Conv_AE
-from Utility import train,test,visualizing
+from Utility import train,test,visualizing,weights_init
 import datetime
 import pathlib
 
 
 input_size = 720
 output_size = 80
-batch_size = 256
-lr = 0.0001
+batch_size = 512
+lr = 0.0005
 epochs = 500
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
@@ -43,6 +43,9 @@ print('dataloader prepared')
 
 #model = AutoEncoder(input_size,output_size).double().to(device)
 model = Conv_AE().double().to(device)
+# model.apply(weights_init)
+# model = model.to(device)
+
 optimizer = torch.optim.Adam(model.parameters(),lr = lr)
 loss_f = torch.nn.MSELoss()
 
@@ -53,7 +56,7 @@ for epoch in range(epochs):
     train(model,tr_dataloader,optimizer,loss_f,epoch,device,norm_name)
     total_dict,point_dict = test(model, vd_dataloader, device,norm_name)
     print('RMSE:{:.2f}  MAE:{:.2f}  MRE:{:.2f}'.format(point_dict['RMSE'],point_dict['MAE'],point_dict['MRE']))
-    if epoch>50 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
+    if epoch>10 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
         good_model_path = "{}\\({})_{:.2f}_{:.2f}_{:.2f}.pt".format(save_path,epoch,point_dict['RMSE'],point_dict['MAE'],point_dict['MRE'])
         torch.save(model.state_dict(),good_model_path)
 

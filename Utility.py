@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import pathlib
+import torch.nn as nn
 
 def zero_norm_recover(data, mean_var):
     mean = mean_var[:, 0].view(-1, 1)
@@ -47,10 +48,9 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
 
     for i, (corr,raw,mask,norm,stat_dict,demo_dict) in enumerate(dataloader):
         corr,raw,mask,norm = corr.to(device),raw.to(device),mask.to(device),norm.to(device)
-        print(norm_name)
         if norm_name is not None:
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=0
+            norm_corr[corr==-1]=-1
             encode = model.encoder(norm_corr)
             decode = model.decoder(encode)
             output_recon = recon_dict[norm_name](decode,stat_dict[mapping[norm_name]].to(device))
@@ -66,6 +66,10 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         output_var = decode.var(dim=1)
         #loss_var = torch.sqrt(torch.mean((output_var-input_var)**2))
         # 어떤 모델을 사용하느냐에 따라 모델의 로스 구성을 다르게 진행하여야 함
+
+        origin[corr==-1]=0
+        decode[corr==-1]=0
+
         optim.zero_grad()
         loss = loss_f(decode, origin)#+loss_var
         loss.backward()
@@ -75,12 +79,14 @@ def train (model,dataloader,optim,loss_f,epoch,device,norm_name=None):
         raw_list.extend(raw.cpu().detach().numpy())
         corr_list.extend(corr.cpu().detach().numpy())
         output_list.extend(output_recon.cpu().detach().numpy())
-    print('{} epoch loss : {}'.format(epoch,np.array(loss_list).mean()))
 
     raw_list,corr_list,output_list = np.array(raw_list),np.array(corr_list),np.array(output_list)
     RMSE_total,RMSE_point = RMSE_F(raw_list,corr_list,output_list)
     MRE_total,MRE_point = MRE_F(raw_list,corr_list,output_list)
     MAE_total,MAE_point = MAE_F(raw_list,corr_list,output_list)
+
+    print('{} epoch loss : {}'.format(epoch,np.array(loss_list).mean()))
+    print('(train)RMSE:{:.2f} MAE:{:.2f} MRE:{:.2f}'.format(RMSE_point,MAE_point,MRE_point))
 
 
 
@@ -102,7 +108,7 @@ def test (model,dataloader,device,norm_name=None):
         if norm_name is not None:
 
             norm_corr = norm.clone()
-            norm_corr[corr==-1]=0
+            norm_corr[corr==-1]=-1
             encode = model.encoder(norm_corr)
             output = model.decoder(encode)
             output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
@@ -132,13 +138,17 @@ def visualizing(dataloader,model,device,norm_name,batch_size,save_path):
         corr, raw, mask, norm = corr.to(device), raw.to(device), mask.to(device), norm.to(device)
 
         if norm_name is not None:
-            norm_corr = norm.clone()
-            norm_corr[corr == -1] = 0
-            output = model(norm_corr)
-            output = recon_dict[norm_name](output, stat_dict[mapping[norm_name]].to(device))
-        else:
-            output = model(corr)
 
+            norm_corr = norm.clone()
+            norm_corr[corr==-1]=-1
+            encode = model.encoder(norm_corr)
+            output = model.decoder(encode)
+            output = recon_dict[norm_name](output,stat_dict[mapping[norm_name]].to(device))
+            #input_var = norm_corr.var(dim=1)
+        else :
+            encode = model.encoder(corr)
+            output = model.decoder(encode)
+            #input_var = corr.var(dim=1)
         break
 
     save_path = save_path+'\\figure\\'
@@ -163,4 +173,8 @@ def visualizing(dataloader,model,device,norm_name,batch_size,save_path):
             break
 
 
+def weights_init(m):
+    if isinstance(m, nn.Conv1d) or isinstance(m, nn.ConvTranspose1d) :
+        torch.nn.init.xavier_uniform_(m.weight.data)
+        torch.nn.init.xavier_uniform_(m.bias.data)
 
