@@ -36,15 +36,16 @@ class Conv_AE(nn.Module):
             nn.BatchNorm1d(16),
             nn.Tanh(),
             nn.ConvTranspose1d(16 ,1 ,10 ,5),
-            nn.Tanh()
+            nn.ReLU()
         )
 
-        self.linear1 = nn.Linear(720*2,720)
+        self.linear1 = nn.Linear(720,720)
 
 
     def encoder(self,x):
         # x = torch.cat([x, mask], dim=1)
         # x = self.linear1(x).view(-1, 1, 720)
+        x = self.linear1(x)
         x = x.view(-1,1,720)
         return self.Encoder(x)
 
