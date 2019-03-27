@@ -14,7 +14,7 @@ input_size = 720
 output_size = 80
 batch_size = 512
 lr = 0.0005
-epochs = 250
+epochs = 200
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
 corr_value=0.5
@@ -56,7 +56,7 @@ for epoch in range(epochs):
     train(model,tr_dataloader,optimizer,loss_f,epoch,device,corr_value,norm_name)
     total_dict,point_dict = test(model, vd_dataloader, device,corr_value,norm_name)
     print('RMSE:{:.2f}  MAE:{:.2f}  MRE:{:.2f}'.format(point_dict['RMSE'],point_dict['MAE'],point_dict['MRE']))
-    if epoch>10 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
+    if epoch>20 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
         good_model_path = "{}\\({})_{:.2f}_{:.2f}_{:.2f}.pt".format(save_path,epoch,point_dict['RMSE'],point_dict['MAE'],point_dict['MRE'])
         torch.save(model.state_dict(),good_model_path)
 
