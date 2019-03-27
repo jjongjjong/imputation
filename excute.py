@@ -13,7 +13,7 @@ import pathlib
 input_size = 720
 output_size = 80
 batch_size = 1024
-lr = 0.0001
+lr = 0.0003
 epochs = 200
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
