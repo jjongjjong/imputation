@@ -70,9 +70,10 @@ for epoch in range(epochs):
 
 
 model.load_state_dict(torch.load(best_model_path))
-visualizing(vd_dataloader,model,device,norm_name,batch_size,save_path,corr_value)
+visualizing(tr_dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode='train')
+visualizing(vd_dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode='valid')
 
 test_total,test_point = test(model,te_dataloader,device,norm_name)
-visualizing(te_dataloader,model,device,norm_name,batch_size,save_path,corr_value)
+visualizing(te_dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode='test')
 print(test_point)
 print('DONE!')

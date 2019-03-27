@@ -136,7 +136,7 @@ def test (model,dataloader,device,corr_value,norm_name=None):
     return {'RMSE':RMSE_total,'MRE':MRE_total,'MAE':MAE_total},{'RMSE':RMSE_point,'MRE':MRE_point,'MAE':MAE_point}
 
 
-def visualizing(dataloader,model,device,norm_name,batch_size,save_path,corr_value):
+def visualizing(dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode):
     recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
     mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
 
@@ -172,7 +172,7 @@ def visualizing(dataloader,model,device,norm_name,batch_size,save_path,corr_valu
         plt.plot(output_np[i], 'r:')
         plt.plot(corr_np[i])
         plt.plot(raw_np[i], 'g')
-        plt.savefig(save_path+str(i))
+        plt.savefig('{}{}_{}'.format(save_path,mode,i))
         plt.close()
 
         if i>30:
