@@ -12,7 +12,7 @@ import pathlib
 
 input_size = 720
 output_size = 80
-batch_size = 512
+batch_size = 1024
 lr = 0.0005
 epochs = 200
 norm_name = 'minmax' #minmax/zero/total_zero/None
