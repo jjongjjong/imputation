@@ -14,7 +14,7 @@ input_size = 720
 output_size = 80
 batch_size = 1024
 lr = 0.0003
-epochs = 200
+epochs = 500
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
 corr_value=0.5
@@ -75,5 +75,6 @@ visualizing(vd_dataloader,model,device,norm_name,batch_size,save_path,corr_value
 
 test_total,test_point = test(model,te_dataloader,device,norm_name)
 visualizing(te_dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode='test')
+info_writer(test_point,save_path)
 print(test_point)
 print('DONE!')
