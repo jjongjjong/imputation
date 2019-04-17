@@ -55,7 +55,7 @@ best_model_path = None
 for epoch in range(epochs):
     train(model,tr_dataloader,optimizer,loss_f,epoch,device,corr_value,norm_name)
     total_dict,point_dict = test(model, vd_dataloader, device,corr_value,norm_name)
-    print('RMSE:{:.2f}  MAE:{:.2f}  MRE:{:.2f}'.format(point_dict['RMSE'],point_dict['MAE'],point_dict['MRE']))
+    print('(valid)RMSE:{:.2f}  MAE:{:.2f}  MRE:{:.2f}'.format(point_dict['RMSE'],point_dict['MAE'],point_dict['MRE']))
     if epoch>20 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
         good_model_path = "{}\\({})_{:.2f}_{:.2f}_{:.2f}.pt".format(save_path,epoch,point_dict['RMSE'],point_dict['MAE'],point_dict['MRE'])
         torch.save(model.state_dict(),good_model_path)

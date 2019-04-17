@@ -92,7 +92,7 @@ def train (model,dataloader,optim,loss_f,epoch,device,corr_value,norm_name=None)
     MAE_total,MAE_point = MAE_F(raw_list,corr_list,output_list)
 
     print('{} epoch loss : {}'.format(epoch,np.array(loss_list).mean()))
-    print('(train)RMSE:{:.2f} MAE:{:.2f} MRE:{:.2f}'.format(RMSE_point,MAE_point,MRE_point))
+    print('( train)RMSE:{:.2f} MAE:{:.2f} MRE:{:.2f}'.format(RMSE_point,MAE_point,MRE_point))
 
 
 
