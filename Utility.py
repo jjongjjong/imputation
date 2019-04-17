@@ -6,8 +6,8 @@ import torch.nn as nn
 
 def info_writer(info,savepath):
     print(info)
-    file = open('\n{}//{}'.format(savepath,'info.txt'),'a+')
-    file.write(info)
+    file = open('{}//{}'.format(savepath,'info.txt'),'a+')
+    file.write("\n"+info)
     file.close()
 
 def zero_norm_recover(data, mean_var):
