@@ -92,7 +92,7 @@ def train (model,dataloader,optim,loss_f,epoch,device,corr_value,norm_name=None)
     MAE_total,MAE_point = MAE_F(raw_list,corr_list,output_list)
 
     print('{} epoch loss : {}'.format(epoch,np.array(loss_list).mean()))
-    print('( train)RMSE:{:.2f} MAE:{:.2f} MRE:{:.2f}'.format(RMSE_point,MAE_point,MRE_point))
+    print('(train)RMSE:{:.2f} MAE:{:.2f} MRE:{:.2f}'.format(RMSE_point,MAE_point,MRE_point))
 
 
 
@@ -137,6 +137,7 @@ def test (model,dataloader,device,corr_value,norm_name=None):
 
 
 def visualizing(dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode):
+    model.eval()
     recon_dict = {'minmax': min_max_recover, 'zero': zero_norm_recover, 'total_zero': zero_norm_recover}
     mapping = {'minmax': 'min_max', 'zero': 'mean_var', 'total_zero': 'total_mean_var'}
 

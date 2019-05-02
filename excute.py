@@ -5,19 +5,22 @@ import pandas as pd
 import numpy as np
 from AE import AutoEncoder
 from Conv_AE import Conv_AE
+from Conv_AE_skip import Resnet_AE
 from Utility import train,test,visualizing,info_writer
 import datetime
 import pathlib
+from tensorboardX import SummaryWriter
+
 
 
 input_size = 720
 output_size = 80
-batch_size = 1024
+batch_size = 512
 lr = 0.0003
-epochs = 500
+epochs = 1000
 norm_name = 'minmax' #minmax/zero/total_zero/None
 folder='30zero'
-corr_value=0.5
+corr_value=-1
 
 info = 'model_{} hidden_{} norm_{} corr_{}'.format('Conv_AE',output_size,norm_name,corr_value)
 time = datetime.datetime.now().strftime('%Y%m%d-%H%M-%S')
@@ -42,7 +45,14 @@ te_dataloader = DataLoader(te_dataset,batch_size,shuffle=False,drop_last=False)
 print('dataloader prepared')
 
 #model = AutoEncoder(input_size,output_size).double().to(device)
-model = Conv_AE().double().to(device)
+model = Resnet_AE([2,2,2,2,2],[2,2,2,2]).double().to(device)
+summary = str(model)
+info_writer(summary,save_path)
+
+# with SummaryWriter(comment='1D-conv')as w:
+#     dummy = torch.zeros(1,1,720)
+#     w.add_graph(model,(dummy,),verbose=True)
+#     w.export_scalars_to_json()
 # model.apply(weights_init)
 # model = model.to(device)
 
@@ -55,8 +65,8 @@ best_model_path = None
 for epoch in range(epochs):
     train(model,tr_dataloader,optimizer,loss_f,epoch,device,corr_value,norm_name)
     total_dict,point_dict = test(model, vd_dataloader, device,corr_value,norm_name)
-    print('(valid)RMSE:{:.2f}  MAE:{:.2f}  MRE:{:.2f}'.format(point_dict['RMSE'],point_dict['MAE'],point_dict['MRE']))
-    if epoch>20 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
+    print('(valid)RMSE:{:.2f} MAE:{:.2f} MRE:{:.2f}'.format(point_dict['RMSE'],point_dict['MAE'],point_dict['MRE']))
+    if epoch>10 and (point_dict['RMSE']<best_MSE_score or point_dict['MAE']< best_MAE_score):
         good_model_path = "{}\\({})_{:.2f}_{:.2f}_{:.2f}.pt".format(save_path,epoch,point_dict['RMSE'],point_dict['MAE'],point_dict['MRE'])
         torch.save(model.state_dict(),good_model_path)
 
@@ -75,6 +85,9 @@ visualizing(vd_dataloader,model,device,norm_name,batch_size,save_path,corr_value
 
 test_total,test_point = test(model,te_dataloader,device,norm_name)
 visualizing(te_dataloader,model,device,norm_name,batch_size,save_path,corr_value,mode='test')
-info_writer(test_point,save_path)
+
+test_result = '(test)RMSE:{:.2f}  MAE:{:.2f}  MRE:{:.2f}'.format(test_point['RMSE'], test_point['MAE'], test_point['MRE'])
+info_writer(best_model_path,save_path)
+info_writer(test_result,save_path)
 print(test_point)
 print('DONE!')
