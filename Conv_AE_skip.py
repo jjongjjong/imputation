@@ -82,7 +82,7 @@ def transconv1d_5(indim,outdim,stride=1,padding=2,output_padding=0):
     if stride==2 :
         padding=2
         output_padding=1
-    return nn.ConvTranspose1d(indim,outdim,5,stride,padding,output_padding)
+    return nn.ConvTranspose1d(indim,outdim,5,stride,padding,output_padding,bias=False)
 
 class ResidualBlock_trans(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1, upsample=None):
